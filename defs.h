@@ -9,7 +9,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
-
+#include "user_db.h"
 // bio.c
 void            binit(void);
 struct buf*     bread(uint, uint);
@@ -185,6 +185,17 @@ void            switchuvm(struct proc*);
 void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
-
+// userdb.c
+void            userdb_init(void);
+int             userdb_login(const char*, const char*);
+int             userdb_getuid(const char*);
+uint            passhash(const char*);
+extern struct user_entry user_table[];
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+// audit.c
+void audit_init(void);
+void audit_log(int, int, uint, const char*);
+int  audit_read(char*, int);
+int             get_current_uid(void);
+void            audit_print(void);

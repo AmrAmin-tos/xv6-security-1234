@@ -209,6 +209,8 @@ fork(void)
   np->cwd = idup(curproc->cwd);
 
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+  np->uid = curproc->uid;
+  np->gid = curproc->gid;
 
   pid = np->pid;
 
@@ -531,4 +533,10 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int
+get_current_uid(void)
+{
+  return myproc()->uid;
 }

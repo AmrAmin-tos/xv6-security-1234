@@ -31,10 +31,13 @@ struct dinode {
   short major;          // Major device number (T_DEV only)
   short minor;          // Minor device number (T_DEV only)
   short nlink;          // Number of links to inode in file system
+  short mode;           // Permission bits
+  short uid;            // Owner user ID
+  short gid;            // Owner group ID
+  short pad[29];        // padding to align to 128 bytes
   uint size;            // Size of file (bytes)
   uint addrs[NDIRECT+1];   // Data block addresses
 };
-
 // Inodes per block.
 #define IPB           (BSIZE / sizeof(struct dinode))
 

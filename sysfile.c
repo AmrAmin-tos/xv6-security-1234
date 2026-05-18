@@ -1,9 +1,8 @@
-//
+	//
 // File-system system calls.
 // Mostly argument checking, since we don't trust
 // user code, and calls into file.c and fs.c.
 //
-
 #include "types.h"
 #include "defs.h"
 #include "param.h"
@@ -15,6 +14,7 @@
 #include "sleeplock.h"
 #include "file.h"
 #include "fcntl.h"
+#include "user_db.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -289,12 +289,9 @@ sys_open(void)
   int fd, omode;
   struct file *f;
   struct inode *ip;
-
   if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
     return -1;
-
   begin_op();
-
   if(omode & O_CREATE){
     ip = create(path, T_FILE, 0, 0);
     if(ip == 0){
@@ -307,13 +304,32 @@ sys_open(void)
       return -1;
     }
     ilock(ip);
+
+    if(ip->mode != 0){
+      int uid = myproc()->uid;
+      if(uid != UID_ADMIN){
+        int can_read  = (uid == ip->uid);
+        int can_write = (uid == ip->uid) && (ip->mode & 0x2);
+        if(!(omode & O_WRONLY) && !can_read){
+          audit_log(myproc()->pid, uid, ticks, "perm_denied_read");
+          iunlockput(ip);
+          end_op();
+          return -1;
+        }
+        if((omode & O_WRONLY) && !can_write){
+          audit_log(myproc()->pid, uid, ticks, "perm_denied_write");
+          iunlockput(ip);
+          end_op();
+          return -1;
+        }
+      }
+    }
     if(ip->type == T_DIR && omode != O_RDONLY){
       iunlockput(ip);
       end_op();
       return -1;
     }
   }
-
   if((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){
     if(f)
       fileclose(f);
@@ -323,7 +339,6 @@ sys_open(void)
   }
   iunlock(ip);
   end_op();
-
   f->type = FD_INODE;
   f->ip = ip;
   f->off = 0;
@@ -331,12 +346,11 @@ sys_open(void)
   f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
   return fd;
 }
-
 int
 sys_mkdir(void)
 {
   char *path;
-  struct inode *ip;
+	  struct inode *ip;
 
   begin_op();
   if(argstr(0, &path) < 0 || (ip = create(path, T_DIR, 0, 0)) == 0){

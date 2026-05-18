@@ -1,3 +1,4 @@
+
 // File system implementation.  Five layers:
 //   + Blocks: allocator for raw disk blocks.
 //   + Log: crash recovery for multi-step updates.
@@ -230,6 +231,9 @@ iupdate(struct inode *ip)
   dip->minor = ip->minor;
   dip->nlink = ip->nlink;
   dip->size = ip->size;
+  dip->mode = ip->mode;
+  dip->uid  = ip->uid;
+  dip->gid  = ip->gid;
   memmove(dip->addrs, ip->addrs, sizeof(ip->addrs));
   log_write(bp);
   brelse(bp);
@@ -294,8 +298,8 @@ ilock(struct inode *ip)
     panic("ilock");
 
   acquiresleep(&ip->lock);
+if(ip->valid == 0){
 
-  if(ip->valid == 0){
     bp = bread(ip->dev, IBLOCK(ip->inum, sb));
     dip = (struct dinode*)bp->data + ip->inum%IPB;
     ip->type = dip->type;
@@ -303,6 +307,9 @@ ilock(struct inode *ip)
     ip->minor = dip->minor;
     ip->nlink = dip->nlink;
     ip->size = dip->size;
+    ip->mode = dip->mode;
+    ip->uid  = dip->uid;
+    ip->gid  = dip->gid;
     memmove(ip->addrs, dip->addrs, sizeof(ip->addrs));
     brelse(bp);
     ip->valid = 1;

@@ -103,6 +103,16 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+extern int sys_whoami(void);
+extern int sys_useradd(void);
+extern int sys_userdel(void);
+extern int sys_passwd(void);
+extern int sys_login(void);
+extern int sys_setuid(void);
+extern int sys_chmod(void);
+extern int sys_chown(void);
+extern int sys_audit_read(void);
+
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -126,6 +136,16 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_whoami]   sys_whoami,
+[SYS_useradd]  sys_useradd,
+[SYS_userdel]  sys_userdel,
+[SYS_passwd]   sys_passwd,
+[SYS_login]   sys_login,
+[SYS_setuid]  sys_setuid,
+[SYS_chmod]  sys_chmod,
+[SYS_chown]  sys_chown,
+[SYS_audit_read]  sys_audit_read,
+
 };
 
 void

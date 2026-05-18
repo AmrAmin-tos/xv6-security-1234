@@ -20,3 +20,12 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+#define SYS_whoami   22
+#define SYS_useradd  23
+#define SYS_userdel  24
+#define SYS_passwd   25
+#define SYS_login   26
+#define SYS_setuid  27
+#define SYS_chmod   28
+#define SYS_chown   29
+#define SYS_audit_read  30

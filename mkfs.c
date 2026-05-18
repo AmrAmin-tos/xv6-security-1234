@@ -223,6 +223,9 @@ rsect(uint sec, void *buf)
 uint
 ialloc(ushort type)
 {
+#define MODE_R  0x1   // read
+#define MODE_W  0x2   // write
+#define MODE_RW 0x3   // read+write
   uint inum = freeinode++;
   struct dinode din;
 
